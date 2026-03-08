@@ -1,153 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>My Requests</title>
+<!-- navbar.html -->
 
-  <style>
-    body {
-      font-family: Arial;
-      text-align:center;
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
 
-      /* 🌆 Background Image */
-      background-image: url('pharmacy.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      margin:0;
-      padding:0;
-    }
+<style>
+.navbar {
+    width: 100%;
+    padding: 15px 40px;
+    background: linear-gradient(90deg, #2563eb, #4f46e5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+}
 
-    h2{
-      color:#1e3a8a;
-      margin-top:20px;
-    }
+.navbar h2 {
+    color: white;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
 
-    table {
-      width:90%;
-      margin:30px auto;
-      border-collapse: collapse;
-      background: rgba(255,255,255,0.95);
-      box-shadow:0 4px 12px rgba(0,0,0,0.15);
-    }
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 20px;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: 0.3s;
+}
 
-    th, td {
-      padding:12px;
-      border:1px solid #ccc;
-    }
+.nav-links a:hover {
+    background: rgba(255,255,255,0.2);
+}
+</style>
 
-    th {
-      background:#2563eb;
-      color:white;
-    }
+<div class="navbar">
+    <h2>Smart Medicine Exchange</h2>
 
-    .pending {
-      background: orange;
-      color:white;
-      padding:5px 10px;
-      border-radius:5px;
-    }
+    <div class="nav-links">
+        <a href="dashboard.html"> Back to Dashboard</a>
 
-    .approved {
-      background: green;
-      color:white;
-      padding:5px 10px;
-      border-radius:5px;
-    }
-
-    .no-data {
-      margin-top:30px;
-      font-size:18px;
-      color:white;
-      background: rgba(0,0,0,0.4);
-      display:inline-block;
-      padding:10px 20px;
-      border-radius:8px;
-    }
-  </style>
-</head>
-
-<body>
-
-<h2>My Requests Status</h2>
-
-<div id="navbar"></div>
-
-<script>
-fetch("navbar.html")
-.then(res => res.text())
-.then(data => {
-    document.getElementById("navbar").innerHTML = data;
-});
-</script>
-
-<table>
-  <thead>
-    <tr>
-      <th>Medicine</th>
-      <th>Quantity</th>
-      <th>Status</th>
-      <th>Donated By</th>
-    </tr>
-  </thead>
-  <tbody id="myTable"></tbody>
-</table>
-
-<p id="noData" class="no-data" style="display:none;">No Requests Found</p>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
-  authDomain: "smart-medicine-exchange.firebaseapp.com",
-  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "smart-medicine-exchange",
-  storageBucket: "smart-medicine-exchange.firebasestorage.app",
-  messagingSenderId: "968345724247",
-  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-const table = document.getElementById("myTable");
-const noData = document.getElementById("noData");
-const currentPharmacy = localStorage.getItem("pharmacyName");
-
-onValue(ref(db, "requests"), (snapshot) => {
-  table.innerHTML = "";
-  let found = false;
-
-  snapshot.forEach((child) => {
-    const data = child.val();
-
-    if (data.requestedBy === currentPharmacy) {
-      found = true;
-
-      let statusBadge = "";
-      if (data.status === "Pending") {
-        statusBadge = `<span class="pending">Pending</span>`;
-      } else if (data.status === "Approved") {
-        statusBadge = `<span class="approved">Approved</span>`;
-      }
-
-      const row = `
-        <tr>
-          <td>${data.name}</td>
-          <td>${data.quantity}</td>
-          <td>${statusBadge}</td>
-          <td>${data.donatedBy || "-"}</td>
-        </tr>
-      `;
-      table.innerHTML += row;
-    }
-  });
-
-  noData.style.display = found ? "none" : "block";
-});
-</script>
-
-</body>
-</html>
+    </div>
+</div>
