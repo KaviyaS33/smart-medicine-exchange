@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Available Medicines</title>
+
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #f4f8ff;
+        }
+
+        h2 {
+            text-align:center;
+            color:#1e3a8a;
+            margin-top:20px;
+        }
+
+        .search-box {
+            width: 90%;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .search-box input {
+            width: 60%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        #expirySummary {
+            width:95%;
+            margin:10px auto;
+            padding:12px;
+            border-radius:8px;
+            font-weight:500;
+            background:#fff3cd;
+            color:#856404;
+            text-align:center;
+            display:none;
+        }
+
+        table {
+            width: 95%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th {
+            background:#2563eb;
+            color:white;
+        }
+
+        .safe {
+            background: green;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .near-expiry {
+            background: orange;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .critical {
+            background: red;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .request-btn {
+            padding: 6px 12px;
+            background: green;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            margin: 2px;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            background: red;
+            color:white;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+            margin: 2px;
+        }
+
+        .owner-tag {
+            background: #1e3a8a;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .request-btn:hover { background: darkgreen; }
+        .delete-btn:hover { background: darkred; }
+    </style>
+</head>
+
+<body>
+
+<h2>Available Medicines (Smart Expiry Monitoring)</h2>
+<div id="navbar"></div>
+
+<script>
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("navbar").innerHTML = data;
+});
+</script>
+
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search medicine by name..." onkeyup="filterMedicines()">
+</div>
+
+<div id="expirySummary"></div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Expiry</th>
+            <th>Pharmacy</th>
+            <th>Expiry Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="medicineTable"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
+};
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+const medicinesRef = ref(database, "medicines");
+
+let allMedicines = {};
+const currentPharmacy = localStorage.getItem("pharmacyName") || "Unknown Pharmacy";
+
+// 🔥 Display Medicines with Smart Expiry Detection
+function displayMedicines(data, searchTerm = "") {
+
+    const table = document.getElementById("medicineTable");
+    const summaryBox = document.getElementById("expirySummary");
+    table.innerHTML = "";
+
+    if (!data) {
+        table.innerHTML = "<tr><td colspan='6'>No Medicines Available</td></tr>";
+        summaryBox.style.display = "none";
+        return;
+    }
+
+    const search = searchTerm.toLowerCase();
+    let criticalCount = 0;
+    let nearExpiryCount = 0;
+
+    for (let id in data) {
+
+        const med = data[id];
+
+        if (med.status === "Requested") continue;
+        if (!med.name.toLowerCase().includes(search)) continue;
+
+        const today = new Date();
+        const expiry = new Date(med.expiry);
+        const diffTime = expiry - today;
+        const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        let expiryBadge = "";
+        let rowStyle = "";
+
+        if (daysLeft < 0) {
+            expiryBadge = `<span class="critical">Expired</span>`;
+            rowStyle = "style='background:#ffe5e5;'";
+            criticalCount++;
+        } 
+        else if (daysLeft <= 7) {
+            expiryBadge = `<span class="critical">Critical (${daysLeft} days)</span>`;
+            rowStyle = "style='background:#ffe5e5;'";
+            criticalCount++;
+        } 
+        else if (daysLeft <= 30) {
+            expiryBadge = `<span class="near-expiry">Near Expiry (${daysLeft} days)</span>`;
+            rowStyle = "style='background:#fff3cd;'";
+            nearExpiryCount++;
+        } 
+        else {
+            expiryBadge = `<span class="safe">Safe (${daysLeft} days)</span>`;
+        }
+
+        const isOwner = med.pharmacy === currentPharmacy;
+
+        let actionButtons = "";
+
+        if (isOwner) {
+            actionButtons = `
+                <span class="owner-tag">Your Medicine</span><br><br>
+                <button class="delete-btn" onclick="deleteMedicine('${id}')">Delete</button>
+            `;
+        } else {
+            actionButtons = `
+                <button class="request-btn" onclick="requestMedicine('${id}')">Request</button>
+            `;
+        }
+
+        table.innerHTML += `
+        <tr ${rowStyle}>
+            <td>${med.name}</td>
+            <td>${med.quantity}</td>
+            <td>${med.expiry}</td>
+            <td>${med.pharmacy}</td>
+            <td>${expiryBadge}</td>
+            <td>${actionButtons}</td>
+        </tr>
+        `;
+    }
+
+    // 🔔 Summary Alert
+    if (criticalCount > 0 || nearExpiryCount > 0) {
+        summaryBox.style.display = "block";
+        summaryBox.innerHTML =
+            `⚠ ${criticalCount} Critical & ${nearExpiryCount} Near Expiry Medicines Detected. Immediate action recommended.`;
+    } else {
+        summaryBox.style.display = "none";
+    }
+}
+
+// 🔄 Real-time Firebase Load
+onValue(medicinesRef, (snapshot) => {
+    allMedicines = snapshot.val() || {};
+    displayMedicines(allMedicines);
+});
+
+// 🔍 Search
+window.filterMedicines = function() {
+    const searchValue = document.getElementById("searchInput").value;
+    displayMedicines(allMedicines, searchValue);
+};
+
+// 📦 Request Medicine
+window.requestMedicine = function(id) {
+    update(ref(database, 'medicines/' + id), {
+        status: "Requested",
+        requestedBy: currentPharmacy
+    });
+    alert("Request Sent to Owner Pharmacy!");
+};
+
+// 🗑 Delete Medicine
+window.deleteMedicine = function(id) {
+    if (confirm("Are you sure you want to delete this medicine?")) {
+        remove(ref(database, 'medicines/' + id))
+        .then(() => alert("Medicine Deleted Successfully!"))
+        .catch(error => alert("Error: " + error.message));
+    }
+};
+</script>
+
+</body>
+</html>

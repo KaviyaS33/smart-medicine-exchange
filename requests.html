@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Medicine Requests</title>
+  <style>
+    body { font-family: Arial; background:#f4f8ff; text-align:center; }
+    table { width:90%; margin:30px auto; border-collapse: collapse; }
+    th, td { padding:12px; border:1px solid #ccc; }
+    th { background:#dc2626; color:white; }
+    button { padding:6px 12px; background:#16a34a; color:white; border:none; cursor:pointer; }
+  </style>
+</head>
+<body>
+
+<h2>All Medicine Requests</h2>
+<div id="navbar"></div>
+
+<script>
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("navbar").innerHTML = data;
+});
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>Medicine</th>
+      <th>Quantity</th>
+      <th>Requested By</th>
+      <th>Status</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody id="requestsTable"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue, update, get } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const table = document.getElementById("requestsTable");
+const currentPharmacy = localStorage.getItem("pharmacyName");
+
+onValue(ref(db, "requests"), (snapshot) => {
+  table.innerHTML = "";
+  snapshot.forEach((child) => {
+    const data = child.val();
+    const id = child.key;
+
+    const row = `
+      <tr>
+        <td>${data.name}</td>
+        <td>${data.quantity}</td>
+        <td>${data.requestedBy}</td>
+        <td>${data.status}</td>
+        <td>
+          ${
+            data.status === "Pending" && data.requestedBy !== currentPharmacy
+            ? `<button onclick="approveRequest('${id}')">Donate</button>`
+            : (data.status === "Approved" ? "Donated by " + data.donatedBy : "-")
+          }
+        </td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
+});
+
+window.approveRequest = async function(id) {
+
+  const requestRef = ref(db, "requests/" + id);
+  const snapshot = await get(requestRef);
+  const requestData = snapshot.val();
+
+  // 1️⃣ Update request
+  await update(requestRef, {
+    status: "Approved",
+    donatedBy: currentPharmacy
+  });
+
+  // 2️⃣ Update medicines node also
+  const medicinesRef = ref(db, "medicines");
+  const medSnap = await get(medicinesRef);
+
+  medSnap.forEach((child) => {
+    const med = child.val();
+    if (med.name === requestData.name && med.status === "Available") {
+      update(ref(db, "medicines/" + child.key), {
+        status: "Approved",
+        requestedBy: requestData.requestedBy,
+        approvedBy: currentPharmacy
+      });
+    }
+  });
+
+  alert("Medicine Approved & Exchange Completed!");
+};
+</script>
+
+</body>
+</html>

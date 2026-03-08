@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exchange History</title>
+    <style>
+        body { font-family: Arial; background:#f4f8ff; }
+
+        h2 {
+            text-align:center;
+            color:#1e3a8a;
+            margin-top:20px;
+        }
+
+        table {
+            width: 95%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        th { background:#16a34a; color:white; }
+
+        .approved {
+            background: green;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .no-data {
+            text-align:center;
+            margin-top:30px;
+            font-size:18px;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Completed Exchanges / Approved Medicines</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Medicine Name</th>
+            <th>Quantity</th>
+            <th>Requested By</th>
+            <th>Approved By</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="historyTable"></tbody>
+</table>
+
+<p id="noData" class="no-data" style="display:none;">No Completed Exchanges Yet</p>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const historyRef = ref(db, "requests");
+const table = document.getElementById("historyTable");
+const noData = document.getElementById("noData");
+
+onValue(historyRef, (snapshot) => {
+    table.innerHTML = "";
+    let found = false;
+
+    snapshot.forEach((child) => {
+        const data = child.val();
+
+        if (data.status === "Approved") {
+            found = true;
+
+            table.innerHTML += `
+            <tr>
+                <td>${data.name}</td>
+                <td>${data.quantity}</td>
+                <td>${data.requestedBy}</td>
+                <td>${data.donatedBy}</td>
+                <td>Completed</td>
+            </tr>
+            `;
+        }
+    });
+
+    noData.style.display = found ? "none" : "block";
+});
+</script>
+
+</body>
+</html>

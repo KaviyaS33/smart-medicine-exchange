@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Requests</title>
+  <style>
+    body { font-family: Arial; background:#f4f8ff; text-align:center; }
+    table { width:90%; margin:30px auto; border-collapse: collapse; }
+    th, td { padding:12px; border:1px solid #ccc; }
+    th { background:#2563eb; color:white; }
+  </style>
+</head>
+<body>
+
+<h2>My Requests</h2>
+
+<div id="navbar"></div>
+
+<script>
+fetch("navbar.html")
+.then(res => res.text())
+.then(data => {
+    document.getElementById("navbar").innerHTML = data;
+});
+</script>
+<table>
+  <thead>
+    <tr>
+      <th>Medicine</th>
+      <th>Quantity</th>
+      <th>Status</th>
+      <th>Donated By</th>
+    </tr>
+  </thead>
+  <tbody id="myTable"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const table = document.getElementById("myTable");
+const currentPharmacy = localStorage.getItem("pharmacyName");
+
+onValue(ref(db, "requests"), (snapshot) => {
+  table.innerHTML = "";
+  snapshot.forEach((child) => {
+    const data = child.val();
+    if (data.requestedBy === currentPharmacy) {
+      const row = `
+        <tr>
+          <td>${data.name}</td>
+          <td>${data.quantity}</td>
+          <td>${data.status}</td>
+          <td>${data.donatedBy || "-"}</td>
+        </tr>
+      `;
+      table.innerHTML += row;
+    }
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Medicine | Smart Medicine Exchange</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #1e3a8a;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            color: #1e3a8a;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 15px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .back {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .back a {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Smart Medicine Wastage Exchange Platform</h1>
+</header>
+
+<div class="container">
+    <h2>Add Near-Expiry Medicine</h2>
+
+    <label>Medicine Name</label>
+    <input type="text" id="name" placeholder="Enter medicine name" required>
+
+    <label>Quantity</label>
+    <input type="number" id="quantity" placeholder="Enter quantity" required>
+
+    <label>Expiry Date</label>
+    <input type="date" id="expiry" required>
+
+    <label>Pharmacy Name</label>
+    <input type="text" id="pharmacy" placeholder="Enter pharmacy name" required>
+
+    <button onclick="addMedicine()">Upload Medicine</button>
+
+    <div class="back">
+        <a href="dashboard.html">← Back to Dashboard</a>
+    </div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+    // 🔥 PASTE YOUR FIREBASE CONFIG HERE
+    const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12",
+  measurementId: "G-S6RYYVNXJ1"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    window.addMedicine = function () {
+        const name = document.getElementById("name").value;
+        const quantity = document.getElementById("quantity").value;
+        const expiry = document.getElementById("expiry").value;
+        const pharmacy = document.getElementById("pharmacy").value;
+
+        if (name === "" || quantity === "" || expiry === "" || pharmacy === "") {
+            alert("Please fill all fields!");
+            return;
+        }
+
+        const medicinesRef = ref(database, "medicines");
+
+        push(medicinesRef, {
+            name: name,
+            quantity: quantity,
+            expiry: expiry,
+            pharmacy: pharmacy,
+            status: "Available",
+            timestamp: new Date().toISOString()
+        });
+
+        alert("Medicine Uploaded Successfully!");
+
+        // Clear fields
+        document.getElementById("name").value = "";
+        document.getElementById("quantity").value = "";
+        document.getElementById("expiry").value = "";
+        document.getElementById("pharmacy").value = "";
+    }
+</script>
+
+</body>
+</html>

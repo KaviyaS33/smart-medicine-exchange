@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Smart Medicine Exchange</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light">
+
+<!-- 🔷 Navbar -->
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand fw-bold">Smart Medicine Wastage Exchange</span>
+        <a href="index.html" class="btn btn-light btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container mt-4">
+
+    <!-- 🔥 Welcome Section -->
+    <h2 class="text-primary">Welcome, <span id="pharmacyName"></span></h2>
+    <p class="text-muted">Manage near-expiry medicines and exchange requests in real-time</p>
+
+    <!-- 🔥 LIVE STATISTICS CARDS -->
+    <div class="row text-center mt-4 mb-4">
+        <div class="col-md-4">
+            <div class="card shadow p-3 bg-primary text-white">
+                <h5>Total Medicines</h5>
+                <h2 id="totalCount">0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 bg-success text-white">
+                <h5>Available Medicines</h5>
+                <h2 id="availableCount">0</h2>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow p-3 bg-danger text-white">
+                <h5>Requested Medicines</h5>
+                <h2 id="requestedCount">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔷 Feature Cards -->
+    <div class="row mt-4">
+        
+        <!-- Add Medicine -->
+        <div class="col-md-4">
+            <div class="card shadow text-center p-4">
+                <h4>Add Medicine</h4>
+                <p>Upload near-expiry medicines for exchange</p>
+                <a href="medicine.html" class="btn btn-success">Add Medicine</a>
+            </div>
+        </div>
+
+        <!-- View Medicines -->
+        <div class="col-md-4">
+            <div class="card shadow text-center p-4">
+                <h4>View Medicines</h4>
+                <p>Check available medicines from other pharmacies</p>
+                <a href="view.html" class="btn btn-primary">View Medicines</a>
+            </div>
+        </div>
+
+        <!-- Requests -->
+        <div class="col-md-4">
+            <div class="card shadow text-center p-4">
+                <h4>Exchange System</h4>
+<p>Send, view & track medicine exchange requests</p>
+
+<a href="request-medicine.html" class="btn btn-primary w-100 mb-2">
+    Send Request
+</a>
+
+<a href="requests.html" class="btn btn-warning w-100 mb-2">
+    View Other Requests
+</a>
+
+<a href="my-requests.html" class="btn btn-info w-100">
+    My Request Status
+</a>
+            </div>
+        </div>
+        <div class="col-md-4">
+    <div class="card shadow text-center p-4">
+        <h4>Exchange History</h4>
+        <p>View completed and approved medicine exchanges</p>
+        <a href="history.html" class="btn btn-success">View History</a>
+    </div>
+</div>
+
+    </div>
+</div>
+
+<!-- 🔥 Firebase + Live Dashboard Stats Script -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+  authDomain: "smart-medicine-exchange.firebaseapp.com",
+  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "smart-medicine-exchange",
+  storageBucket: "smart-medicine-exchange.firebasestorage.app",
+  messagingSenderId: "968345724247",
+  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12"
+};
+
+// 🔷 Show Pharmacy Name from Login (LocalStorage)
+document.getElementById("pharmacyName").innerText =
+    localStorage.getItem("pharmacyName") || "Pharmacy";
+
+// 🔥 Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const medicinesRef = ref(db, "medicines");
+
+// 🔥 Real-Time Statistics Logic
+onValue(medicinesRef, (snapshot) => {
+    const data = snapshot.val();
+
+    let total = 0;
+    let available = 0;
+    let requested = 0;
+
+    if (data) {
+        for (let id in data) {
+            total++;
+
+            if (data[id].status === "Requested") {
+                requested++;
+            } else {
+                available++;
+            }
+        }
+    }
+
+    // 🔢 Update Dashboard Cards
+    document.getElementById("totalCount").innerText = total;
+    document.getElementById("availableCount").innerText = available;
+    document.getElementById("requestedCount").innerText = requested;
+});
+</script>
+
+</body>
+</html>
