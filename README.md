@@ -1,58 +1,125 @@
-# 💊 Smart Medicine Wastage Exchange Platform
+💊 Smart Medicine Wastage Exchange System
+📌 Project Overview
 
-A real-time web platform that helps pharmacies reduce medicine wastage by exchanging near-expiry medicines.
+Smart Medicine Wastage Exchange is a real-time web platform that connects pharmacies to reduce medicine wastage. Pharmacies can upload near-expiry medicines and exchange them with other pharmacies that need them.
 
----
+This system prevents usable medicines from being discarded and improves medical resource utilization.
 
-## 🚨 Problem
-Many pharmacies face loss due to unused near-expiry medicines. These medicines could help other pharmacies if shared in time.
+❗ Problem Statement
 
----
+Large quantities of medicines are wasted every year due to:
 
-## 💡 Solution
-Our platform connects pharmacies and allows them to:
+• Near expiry stock
+• Overstock in pharmacies
+• Lack of communication between medical stores
+• No centralized exchange system
 
-✔ Upload available medicines  
-✔ View medicines from other pharmacies  
-✔ Send medicine requests  
-✔ Approve & donate medicines  
-✔ Track request status  
-✔ Maintain exchange history  
+This leads to financial loss and medical resource wastage.
 
----
+💡 Solution
 
-## ✨ Key Features
-- Real-time medicine exchange
-- Request & approval system
-- Pharmacy-wise login
-- Smart dashboard with live statistics
-- Exchange history tracking
+Our system provides a centralized medicine exchange platform where:
 
----
+• Pharmacies upload available medicines
+• Other pharmacies can request required medicines
+• Medicine owners can approve requests
+• Exchanges happen in real time
+• All transactions are stored as history
 
-## 🛠 Technologies Used
-Frontend: HTML, CSS, Bootstrap  
-Backend: JavaScript  
-Database: Firebase Realtime Database  
+🚀 Key Features
+🏥 Pharmacy Login
 
----
+Each pharmacy logs in using its pharmacy name.
 
-## ▶ How to Run
-1. Download project files
-2. Open in VS Code
-3. Run using Live Server
-4. Login as Pharmacy and start exchanging medicines
+➕ Add Medicines
 
----
+Pharmacies can upload:
+• Medicine name
+• Quantity
+• Expiry date
 
-## 🌍 Future Enhancements
-- AI-based expiry prediction
-- Nearby pharmacy auto-matching
-- Delivery tracking system
-- Government hospital integration
+🔍 View Medicines
 
----
+• View all available medicines
+• Smart search option
+• Expiry status monitoring
+• Request medicines instantly
 
-## 👩‍💻 Developed By
-Team of 4 members  
-B.Tech Computer Science Project
+🔄 Exchange Requests
+
+• Send medicine requests to all pharmacies
+• View requests from other pharmacies
+• Approve & donate medicines
+
+📊 My Request Status
+
+• Track requests sent by your pharmacy
+• See approval status
+• View donor pharmacy details
+
+📜 Exchange History
+
+• Stores completed exchanges
+• Shows donor & receiver pharmacy
+• Maintains transparency records
+
+⚡ Real-Time Updates
+
+All updates happen instantly using Firebase Realtime Database.
+
+🛠️ Tech Stack
+
+Frontend
+• HTML
+• CSS
+• Bootstrap
+
+Backend / Database
+• Firebase Realtime Database
+
+Hosting
+• GitHub Pages
+
+🧠 System Workflow
+
+1️⃣ Pharmacy logs in
+2️⃣ Adds available medicines
+3️⃣ Other pharmacies view medicines
+4️⃣ Pharmacy sends medicine request
+5️⃣ Owner pharmacy approves request
+6️⃣ Medicine marked as donated
+7️⃣ Exchange stored in history
+
+🌍 Live Demo
+
+https://kaviyas33.github.io/smart-medicine-exchange/
+
+🔮 Future Enhancements
+
+• Secure login using Firebase Authentication
+• Email notifications on approvals
+• Nearby pharmacy locator using maps
+• Admin monitoring dashboard
+• Mobile app version
+
+👩‍💻 Team Members & Roles
+
+Member 1 — Frontend Developer
+Designed user interface and dashboard pages.
+
+Member 2 — Backend Developer
+Integrated Firebase database and real-time updates.
+
+Member 3 — Feature Engineer
+Implemented medicine exchange logic and request system.
+
+Member 4 — Testing & Documentation
+Performed system testing and prepared project documentation.
+
+🏆 Innovation Highlights
+
+* Reduces medicine wastage
+* Real-time pharmacy collaboration
+* Simple & low-cost implementation
+* Social impact in healthcare supply chain
+* Transparent medicine exchange tracking
