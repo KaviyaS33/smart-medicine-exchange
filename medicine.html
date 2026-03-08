@@ -8,13 +8,20 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f8ff;
+
+            /* 🌆 BACKGROUND IMAGE */
+            background-image: url('pharmacy.jpg'); /* image file name */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+
             margin: 0;
             padding: 0;
         }
 
         header {
-            background: #1e3a8a;
+            background: rgba(30, 58, 138, 0.9);
             color: white;
             padding: 15px;
             text-align: center;
@@ -24,10 +31,10 @@
             width: 90%;
             max-width: 500px;
             margin: 40px auto;
-            background: white;
+            background: rgba(255,255,255,0.95); /* slight transparent */
             padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
         h2 {
@@ -105,19 +112,18 @@
 <!-- Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // 🔥 PASTE YOUR FIREBASE CONFIG HERE
     const firebaseConfig = {
-  apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
-  authDomain: "smart-medicine-exchange.firebaseapp.com",
-  databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "smart-medicine-exchange",
-  storageBucket: "smart-medicine-exchange.firebasestorage.app",
-  messagingSenderId: "968345724247",
-  appId: "1:968345724247:web:b31b8d14c93e9a5f240a12",
-  measurementId: "G-S6RYYVNXJ1"
-};
+      apiKey: "AIzaSyBgNSn-4Pg8O5aUvwkn3fwb_jZyOfXqzm4",
+      authDomain: "smart-medicine-exchange.firebaseapp.com",
+      databaseURL: "https://smart-medicine-exchange-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "smart-medicine-exchange",
+      storageBucket: "smart-medicine-exchange.firebasestorage.app",
+      messagingSenderId: "968345724247",
+      appId: "1:968345724247:web:b31b8d14c93e9a5f240a12",
+      measurementId: "G-S6RYYVNXJ1"
+    };
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
@@ -128,25 +134,22 @@
         const expiry = document.getElementById("expiry").value;
         const pharmacy = document.getElementById("pharmacy").value;
 
-        if (name === "" || quantity === "" || expiry === "" || pharmacy === "") {
+        if (!name || !quantity || !expiry || !pharmacy) {
             alert("Please fill all fields!");
             return;
         }
 
-        const medicinesRef = ref(database, "medicines");
-
-        push(medicinesRef, {
-            name: name,
-            quantity: quantity,
-            expiry: expiry,
-            pharmacy: pharmacy,
+        push(ref(database, "medicines"), {
+            name,
+            quantity,
+            expiry,
+            pharmacy,
             status: "Available",
             timestamp: new Date().toISOString()
         });
 
         alert("Medicine Uploaded Successfully!");
 
-        // Clear fields
         document.getElementById("name").value = "";
         document.getElementById("quantity").value = "";
         document.getElementById("expiry").value = "";
