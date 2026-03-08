@@ -3,81 +3,111 @@
 <head>
     <title>Send Medicine Request</title>
 
-    <!-- Modern Google Font -->
+    <!-- Google Font -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
+        *{
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
-            background: linear-gradient(135deg, #eef2ff, #e0f2fe);
             margin: 0;
+            height: 100vh;
+
+            /* Medicine Background */
+            background: 
+                linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+                url("pharmacy.jpg") no-repeat center center fixed;
+            background-size: cover;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .container {
-            width: 400px;
-            margin: 80px auto;
-            background: white;
-            padding: 30px;
-            border-radius: 18px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+            width: 420px;
+            backdrop-filter: blur(14px);
+            background: rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
         }
 
         h2 {
             text-align: center;
             margin-bottom: 25px;
-            color: #1e3a8a;
             font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         label {
             font-weight: 500;
             display: block;
-            margin-top: 15px;
+            margin-top: 18px;
+            font-size: 14px;
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            margin-top: 6px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+            padding: 13px;
+            margin-top: 8px;
+            border-radius: 12px;
+            border: none;
             font-size: 14px;
+            outline: none;
+            background: rgba(255,255,255,0.9);
         }
 
         input:focus {
-            outline: none;
-            border-color: #2563eb;
+            box-shadow: 0 0 0 2px #60a5fa;
         }
 
         button {
             width: 100%;
-            margin-top: 25px;
-            padding: 12px;
+            margin-top: 30px;
+            padding: 13px;
             background: linear-gradient(90deg, #2563eb, #4f46e5);
             border: none;
             color: white;
             border-radius: 30px;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 15px;
             transition: 0.3s;
         }
 
         button:hover {
-            transform: translateY(-2px);
-            opacity: 0.95;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37,99,235,0.4);
         }
 
         .back {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 22px;
         }
 
         .back a {
             text-decoration: none;
-            color: #2563eb;
+            color: #bfdbfe;
             font-size: 14px;
         }
+
+        .back a:hover {
+            color: white;
+        }
+
+        @media (max-width: 500px){
+            .container{
+                width: 90%;
+                padding: 25px;
+            }
+        }
+
     </style>
 </head>
 
@@ -120,12 +150,12 @@ const db = getDatabase(app);
 
 window.submitRequest = function() {
 
-    const name = document.getElementById("medicineName").value;
-    const quantity = document.getElementById("quantity").value;
+    const name = document.getElementById("medicineName").value.trim();
+    const quantity = document.getElementById("quantity").value.trim();
     const pharmacy = localStorage.getItem("pharmacyName") || "Unknown Pharmacy";
 
     if (!name || !quantity) {
-        alert("Please fill all fields");
+        alert("⚠️ Please fill all fields");
         return;
     }
 
@@ -137,12 +167,12 @@ window.submitRequest = function() {
         donatedBy: ""
     })
     .then(() => {
-        alert("✅ Request Sent To All Pharmacies!");
+        alert("✅ Request Sent Successfully!");
         document.getElementById("medicineName").value = "";
         document.getElementById("quantity").value = "";
     })
     .catch((error) => {
-        alert("Error: " + error.message);
+        alert("❌ Error: " + error.message);
         console.log(error);
     });
 };
