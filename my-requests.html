@@ -2,16 +2,74 @@
 <html>
 <head>
   <title>My Requests</title>
+
   <style>
-    body { font-family: Arial; background:#f4f8ff; text-align:center; }
-    table { width:90%; margin:30px auto; border-collapse: collapse; }
-    th, td { padding:12px; border:1px solid #ccc; }
-    th { background:#2563eb; color:white; }
+    body {
+      font-family: Arial;
+      text-align:center;
+
+      /* 🌆 Background Image */
+      background-image: url('pharmacy.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      margin:0;
+      padding:0;
+    }
+
+    h2{
+      color:#1e3a8a;
+      margin-top:20px;
+    }
+
+    table {
+      width:90%;
+      margin:30px auto;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.95);
+      box-shadow:0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    th, td {
+      padding:12px;
+      border:1px solid #ccc;
+    }
+
+    th {
+      background:#2563eb;
+      color:white;
+    }
+
+    .pending {
+      background: orange;
+      color:white;
+      padding:5px 10px;
+      border-radius:5px;
+    }
+
+    .approved {
+      background: green;
+      color:white;
+      padding:5px 10px;
+      border-radius:5px;
+    }
+
+    .no-data {
+      margin-top:30px;
+      font-size:18px;
+      color:white;
+      background: rgba(0,0,0,0.4);
+      display:inline-block;
+      padding:10px 20px;
+      border-radius:8px;
+    }
   </style>
 </head>
+
 <body>
 
-<h2>My Requests</h2>
+<h2>My Requests Status</h2>
 
 <div id="navbar"></div>
 
@@ -22,6 +80,7 @@ fetch("navbar.html")
     document.getElementById("navbar").innerHTML = data;
 });
 </script>
+
 <table>
   <thead>
     <tr>
@@ -33,6 +92,8 @@ fetch("navbar.html")
   </thead>
   <tbody id="myTable"></tbody>
 </table>
+
+<p id="noData" class="no-data" style="display:none;">No Requests Found</p>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -52,24 +113,39 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 const table = document.getElementById("myTable");
+const noData = document.getElementById("noData");
 const currentPharmacy = localStorage.getItem("pharmacyName");
 
 onValue(ref(db, "requests"), (snapshot) => {
   table.innerHTML = "";
+  let found = false;
+
   snapshot.forEach((child) => {
     const data = child.val();
+
     if (data.requestedBy === currentPharmacy) {
+      found = true;
+
+      let statusBadge = "";
+      if (data.status === "Pending") {
+        statusBadge = `<span class="pending">Pending</span>`;
+      } else if (data.status === "Approved") {
+        statusBadge = `<span class="approved">Approved</span>`;
+      }
+
       const row = `
         <tr>
           <td>${data.name}</td>
           <td>${data.quantity}</td>
-          <td>${data.status}</td>
+          <td>${statusBadge}</td>
           <td>${data.donatedBy || "-"}</td>
         </tr>
       `;
       table.innerHTML += row;
     }
   });
+
+  noData.style.display = found ? "none" : "block";
 });
 </script>
 
