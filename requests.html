@@ -2,14 +2,105 @@
 <html>
 <head>
   <title>All Medicine Requests</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: Arial; background:#f4f8ff; text-align:center; }
-    table { width:90%; margin:30px auto; border-collapse: collapse; }
-    th, td { padding:12px; border:1px solid #ccc; }
-    th { background:#dc2626; color:white; }
-    button { padding:6px 12px; background:#16a34a; color:white; border:none; cursor:pointer; }
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      min-height: 100vh;
+
+      background:
+        linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)),
+        url("pharmacy.jpg") no-repeat center center fixed;
+      background-size: cover;
+      color: white;
+      text-align: center;
+    }
+
+    h2 {
+      margin-top: 40px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    #navbar {
+      margin-top: 10px;
+    }
+
+    .table-container {
+      width: 95%;
+      margin: 30px auto 60px auto;
+      backdrop-filter: blur(14px);
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      color: white;
+    }
+
+    th, td {
+      padding: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      font-size: 14px;
+    }
+
+    th {
+      background: rgba(220,38,38,0.9);
+      font-weight: 600;
+    }
+
+    tr:hover {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .donate-btn {
+      background: linear-gradient(90deg, #16a34a, #22c55e);
+      color: white;
+    }
+
+    .donate-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+    }
+
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .pending { background: #facc15; color: #111; }
+    .approved { background: #22c55e; color: white; }
+
+    @media (max-width: 768px){
+      th, td { font-size: 12px; padding: 10px; }
+    }
+
   </style>
 </head>
+
 <body>
 
 <h2>All Medicine Requests</h2>
@@ -23,6 +114,7 @@ fetch("navbar.html")
 });
 </script>
 
+<div class="table-container">
 <table>
   <thead>
     <tr>
@@ -35,6 +127,7 @@ fetch("navbar.html")
   </thead>
   <tbody id="requestsTable"></tbody>
 </table>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -63,19 +156,22 @@ onValue(ref(db, "requests"), (snapshot) => {
     const data = child.val();
     const id = child.key;
 
+    const statusBadge = data.status === "Pending"
+      ? `<span class="badge pending">Pending</span>`
+      : `<span class="badge approved">Approved</span>`;
+
+    const actionBtn =
+      data.status === "Pending" && data.requestedBy !== currentPharmacy
+      ? `<button class="btn donate-btn" onclick="approveRequest('${id}')">Donate</button>`
+      : (data.status === "Approved" ? `Donated by <b>${data.donatedBy}</b>` : "-");
+
     const row = `
       <tr>
         <td>${data.name}</td>
         <td>${data.quantity}</td>
         <td>${data.requestedBy}</td>
-        <td>${data.status}</td>
-        <td>
-          ${
-            data.status === "Pending" && data.requestedBy !== currentPharmacy
-            ? `<button onclick="approveRequest('${id}')">Donate</button>`
-            : (data.status === "Approved" ? "Donated by " + data.donatedBy : "-")
-          }
-        </td>
+        <td>${statusBadge}</td>
+        <td>${actionBtn}</td>
       </tr>
     `;
     table.innerHTML += row;
@@ -88,13 +184,11 @@ window.approveRequest = async function(id) {
   const snapshot = await get(requestRef);
   const requestData = snapshot.val();
 
-  // 1️⃣ Update request
   await update(requestRef, {
     status: "Approved",
     donatedBy: currentPharmacy
   });
 
-  // 2️⃣ Update medicines node also
   const medicinesRef = ref(db, "medicines");
   const medSnap = await get(medicinesRef);
 
@@ -109,7 +203,7 @@ window.approveRequest = async function(id) {
     }
   });
 
-  alert("Medicine Approved & Exchange Completed!");
+  alert("✅ Medicine Approved & Exchange Completed!");
 };
 </script>
 
